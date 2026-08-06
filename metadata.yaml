@@ -1,0 +1,14 @@
+name: astrbot_plugin_gift_stats
+version: 1.0.2
+author: iMuli
+description: B 站直播间礼物数据统计，支持多群直播间绑定、日期范围查询、个人礼物贡献查询
+category: 工具
+tags:
+  - B站
+  - 礼物统计
+  - 数据可视化
+  - 直播辅助
+dependencies: []
+astrbot_version: ">=4.26.0"  
+support_platforms: 
+  - aiocqhttp

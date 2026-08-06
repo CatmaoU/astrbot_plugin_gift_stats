@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>礼物统计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .stats {
+            font-size: 16px;
+            font-weight: 400;
+            color: #475569;
+        }
+        .controls {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+        }
+        .controls .badge {
+            background: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #1e293b;
+        }
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .user-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .user-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e9edf2;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+        .avatar-link {
+            display: inline-block;
+            line-height: 0;
+            border-radius: 50%;
+            transition: opacity 0.2s;
+        }
+        .avatar-link:hover {
+            opacity: 0.8;
+        }
+        .user-info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .user-uid {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+            font-family: monospace;
+        }
+        .user-stats {
+            font-size: 14px;
+            color: #475569;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .user-stats span {
+            background: #eef2f6;
+            padding: 2px 12px;
+            border-radius: 20px;
+        }
+        .gift-list {
+            padding: 8px 20px 16px 20px;
+        }
+        .gift-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f4f8;
+            font-size: 15px;
+            gap: 12px;
+        }
+        .gift-item:last-child {
+            border-bottom: none;
+        }
+        .gift-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            flex-shrink: 0;
+            border-radius: 4px;
+            background: #f1f4f8;
+        }
+        .gift-name {
+            font-weight: 500;
+            min-width: 120px;
+        }
+        .gift-num {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .gift-batteries {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .empty {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px 0;
+        }
+        @media (max-width: 640px) {
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-stats {
+                font-size: 13px;
+                gap: 10px;
+            }
+            .gift-item {
+                flex-wrap: wrap;
+                gap: 4px 12px;
+            }
+        }
+    </style>
+    <!-- 加载自动生成的数据文件 -->
+    <script src="gifts_data.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>
+        今日份礼物记录
+        <span class="stats" id="totalStats">加载中...</span>
+    </h1>
+
+    <div class="controls">
+        <span class="badge" id="userCount">用户 0</span>
+    </div>
+
+    <div id="giftContainer">
+        <div class="empty">加载数据中...</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const container = document.getElementById('giftContainer');
+        const totalStats = document.getElementById('totalStats');
+        const userCount = document.getElementById('userCount');
+
+        // ----- 检查数据是否已加载 -----
+        if (typeof allRecords === 'undefined') {
+            container.innerHTML = `<div class="empty">❌ 数据文件未加载，请确保 gifts_data.js 与 HTML 同目录。</div>`;
+            totalStats.textContent = '加载失败';
+            userCount.textContent = '用户 0';
+            return;
+        }
+        if (!Array.isArray(allRecords) || allRecords.length === 0) {
+            container.innerHTML = `<div class="empty">📭 暂无礼物记录</div>`;
+            totalStats.textContent = '无数据';
+            userCount.textContent = '用户 0';
+            return;
+        }
+
+        // ----- 辅助函数：拼接图片 URL -----
+        function getImageUrl(path) {
+            if (!path) return '';
+            if (path.startsWith('http://') || path.startsWith('https://')) {
+                return path;
+            }
+            return `https://bot.star-yu.cn${path}`;
+        }
+
+        // ----- 分组逻辑（按 viewer_uid 分组）-----
+        const userMap = new Map();
+        for (const rec of allRecords) {
+            const uid = rec.viewer_uid || 'unknown';
+            const name = rec.viewer_name || '未知用户';
+            if (!userMap.has(uid)) {
+                userMap.set(uid, {
+                    uid: uid,
+                    name: name,
+                    avatar: getImageUrl(rec.viewer_avatar),
+                    gifts: [],
+                    totalGiftTypes: 0,
+                    totalNum: 0,
+                    totalBatteries: 0
+                });
+            }
+            const user = userMap.get(uid);
+            if (user.name !== name) {
+                user.name = name;
+            }
+            user.gifts.push({
+                gift_name: rec.gift_name || '未知礼物',
+                num: rec.num || 0,
+                batteries: rec.batteries || 0,
+                gift_icon: getImageUrl(rec.gift_icon)
+            });
+            user.totalGiftTypes = user.gifts.length;
+            user.totalNum += rec.num || 0;
+            user.totalBatteries += rec.batteries || 0;
+        }
+
+        let users = Array.from(userMap.values());
+
+        // 固定按用户名升序排序（中文排序）
+        users.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'));
+
+        // ----- 渲染函数 -----
+        function render() {
+            totalStats.textContent = `共 ${allRecords.length} 条礼物，${users.length} 位用户`;
+            userCount.textContent = `用户 ${users.length}`;
+
+            if (users.length === 0) {
+                container.innerHTML = `<div class="empty">暂无用户</div>`;
+                return;
+            }
+
+            let html = '';
+            for (const user of users) {
+                const bilibiliUrl = `https://space.bilibili.com/${escHtml(user.uid)}`;
+                let avatarHtml;
+                if (user.avatar) {
+                    avatarHtml = `
+                        <a href="${bilibiliUrl}" target="_blank" class="avatar-link">
+                            <img class="user-avatar" src="${escHtml(user.avatar)}" alt="" loading="lazy" onerror="this.style.display='none'">
+                        </a>
+                    `;
+                } else {
+                    avatarHtml = `
+                        <a href="${bilibiliUrl}" target="_blank" class="avatar-link">
+                            <div class="user-avatar" style="background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:20px;color:#64748b;">👤</div>
+                        </a>
+                    `;
+                }
+
+                let giftsHtml = '';
+                for (const g of user.gifts) {
+                    const iconHtml = g.gift_icon ?
+                        `<img class="gift-icon" src="${escHtml(g.gift_icon)}" alt="" loading="lazy" onerror="this.style.display='none'">` :
+                        '';
+                    giftsHtml += `
+                        <div class="gift-item">
+                            ${iconHtml}
+                            <span class="gift-name">${escHtml(g.gift_name)}</span>
+                            <span class="gift-num">×${g.num}</span>
+                            <span class="gift-batteries">⚡ ${g.batteries} 电池</span>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="user-card">
+                        <div class="user-header">
+                            ${avatarHtml}
+                            <div class="user-info">
+                                <div class="user-name">${escHtml(user.name)}</div>
+                                <div class="user-uid">UID: ${escHtml(user.uid)}</div>
+                            </div>
+                            <div class="user-stats">
+                                <span>🎁 ${user.totalGiftTypes} 种</span>
+                                <span>📦 ${user.totalNum} 个</span>
+                                <span>🔋 ${user.totalBatteries} 电池</span>
+                            </div>
+                        </div>
+                        <div class="gift-list">
+                            ${giftsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ----- 防 XSS 转义 -----
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ----- 首次渲染 -----
+        render();
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+    "username": {
+        "type": "string",
+        "description": "用户名",
+        "default": "",
+        "required": true
+    },
+    "password": {
+        "type": "string",
+        "description": "密码",
+        "default": "",
+        "required": true,
+        "password": true
+    },
+    "merge_forward": {
+        "type": "bool",
+        "description": "是否合并转发",
+        "default": true
+    },
+    "send_separately": {
+        "type": "bool",
+        "description": "是否逐张发送",
+        "default": true
+    },
+    "single_image_output": {
+        "type": "bool",
+        "description": "是否单图输出",
+        "default": false
+    },
+    "single_image_max_users": {
+        "type": "int",
+        "description": "单图最大显示数（范围1~20）",
+        "default": 15,
+        "minimum": 1,
+        "maximum": 20
+    },
+    "sender_name": {
+        "type": "string",
+        "description": "用于转发名称",
+        "default": "礼物统计"
+    },
+    "forward_uin": {
+        "type": "string",
+        "description": "用于转发头像",
+        "default": ""
+    }
+}
