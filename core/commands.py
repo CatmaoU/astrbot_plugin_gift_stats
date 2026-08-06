@@ -1,3 +1,4 @@
+import asyncio  # 修复缺少导入的问题
 import re
 from datetime import datetime, timedelta
 from astrbot.api import logger
@@ -187,7 +188,7 @@ async def unbind_uid_command(plugin_instance, event):
 
 # ---------- 贡献命令 ----------
 async def contribution_command(plugin_instance, event):
-    """查询已绑定 UID 的礼物贡献，生成专属图片"""
+    """查询已绑定 UID 的礼物贡献"""
     sender_id = str(event.get_sender_id())
     if sender_id not in plugin_instance.bindings:
         yield event.plain_result("❌ 你还没有绑定任何 UID 呢喵！请先使用 /礼物 绑定 [uid]")

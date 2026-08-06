@@ -2,7 +2,7 @@ import asyncio
 import os
 import tempfile
 import aiohttp
-from astrbot.api.message_components import Node, Plain, Image
+from astrbot.api.message_components import Node, Plain, Image, Nodes
 from astrbot.api import logger
 
 async def get_bot_uin_from_api(plugin_instance, event):
@@ -78,7 +78,7 @@ async def send_forward(plugin_instance, event, image_urls):
         sender_name = '礼物统计'
     logger.info(f"使用发送者名称: {sender_name}")
 
-    # ----- 下载图片并构建节点 -----
+    # ----- 构建节点 -----
     nodes = []
     temp_files = []
     try:
@@ -94,7 +94,7 @@ async def send_forward(plugin_instance, event, image_urls):
                         img = Image.fromFileSystem(path)
                         node = Node(
                             uin=uin,
-                            name=sender_name,  # 自定义名称
+                            name=sender_name,
                             content=[
                                 Plain(f"第 {idx+1}/{len(image_urls)} 页\n"),
                                 img
@@ -106,27 +106,36 @@ async def send_forward(plugin_instance, event, image_urls):
     except Exception as e:
         logger.error(f"构建节点失败: {e}")
         yield event.plain_result(f"❌ 构建合并转发失败喵：{str(e)}")
+        # 清理已下载的临时文件
+        for path in temp_files:
+            try:
+                os.unlink(path)
+            except:
+                pass
         return
 
     if not nodes:
         yield event.plain_result("❌ 没有生成任何节点喵！")
+        # 清理临时文件
+        for path in temp_files:
+            try:
+                os.unlink(path)
+            except:
+                pass
         return
 
-    # ----- 通过 OneBot API 发送合并转发（确保 name 生效）-----
+    # ----- 通过 OneBot API 发送合并转发 -----
     try:
-        # 构建 payload
         payload = {"messages": []}
         for node in nodes:
             payload["messages"].append(await node.to_dict())
 
-        # 判断是群聊还是私聊
         is_group = bool(event.get_group_id())
         target = event.get_group_id() if is_group else event.get_sender_id()
         if not target:
             yield event.plain_result("❌ 无法获取目标会话 ID 喵！")
             return
 
-        # 添加 self_id 路由（如果有）
         routing = {}
         self_id = getattr(event.message_obj, 'self_id', None)
         if self_id:
@@ -151,3 +160,11 @@ async def send_forward(plugin_instance, event, image_urls):
     except Exception as e:
         logger.error(f"合并转发发送失败: {e}")
         yield event.plain_result(f"❌ 合并转发发送失败喵：{str(e)}")
+    finally:
+        # ----- 清理临时文件 -----
+        for path in temp_files:
+            try:
+                os.unlink(path)
+                logger.debug(f"已删除临时文件: {path}")
+            except Exception as e:
+                logger.warning(f"删除临时文件失败 {path}: {e}")
