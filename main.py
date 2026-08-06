@@ -20,13 +20,12 @@ from .core.commands import (
 @register(
     "astrbot_plugin_gift_stats",
     "iMuli",
-    " B 站直播间礼物数据统计，支持多群直播间绑定、日期范围查询、个人礼物贡献查询",
+    "B 站直播间礼物数据统计，支持多群直播间绑定、日期范围查询、个人礼物贡献查询",
     "1.0.2"
 )
 class GiftStatsPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
-        # 配置读取
         if isinstance(config, dict):
             self.username = config.get('username', '')
             self.password = config.get('password', '')
@@ -36,6 +35,7 @@ class GiftStatsPlugin(Star):
             self.single_image_output = config.get('single_image_output', False)
             self.max_users_per_page = config.get('single_image_max_users', 15)
             self.sender_name = config.get('sender_name', '礼物统计')
+            self.forward_uin = config.get('forward_uin', '')
             if not isinstance(self.max_users_per_page, int) or self.max_users_per_page < 1:
                 self.max_users_per_page = 1
             elif self.max_users_per_page > 20:
@@ -49,18 +49,19 @@ class GiftStatsPlugin(Star):
             self.single_image_output = False
             self.max_users_per_page = 15
             self.sender_name = '礼物统计'
+            self.forward_uin = ''
 
         self.base_dir = Path(__file__).parent
         self.html_template = self.base_dir / "gifts_viewer.html"
         self._lock = asyncio.Lock()
 
-        # UID绑定
+        # 用户绑定数据（UID绑定）
         self.data_dir = self.base_dir / "data"
         self.data_dir.mkdir(exist_ok=True)
         self.bindings_file = self.data_dir / "bindings.json"
         self.bindings = load_bindings(self)
 
-        # 群房间绑定
+        # 群房间绑定数据
         self.group_bindings_file = self.data_dir / "group_room_bindings.json"
         self.group_room_bindings = RoomManager.load_group_bindings(self)
 
@@ -68,7 +69,7 @@ class GiftStatsPlugin(Star):
         self.help_file = self.base_dir / "help.json"
         self.help_text = load_help_text(self)
 
-        logger.info(f"礼物统计插件已加载，用户名: {self.username or '(未配置)'}，合并转发: {self.merge_forward}，逐张发送: {self.send_separately}，单图输出: {self.single_image_output}，每页用户数: {self.max_users_per_page}，发送者名称: {self.sender_name}")
+        logger.info(f"礼物统计插件已加载，用户名: {self.username or '(未配置)'}，合并转发: {self.merge_forward}，逐张发送: {self.send_separately}，单图输出: {self.single_image_output}，每页用户数: {self.max_users_per_page}，发送者名称: {self.sender_name}，自定义头像QQ: {self.forward_uin or '(未设置)'}")
 
     # ---------- 命令路由 ----------
     @filter.command("礼物统计房间", alias={"礼物房间列表", "房间列表"})
