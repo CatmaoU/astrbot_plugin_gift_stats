@@ -8,6 +8,7 @@ from .utils import save_bindings, load_bindings
 
 # ---------- 房间列表命令 ----------
 async def list_rooms_command(plugin_instance, event):
+    """列出所有可用直播间及其序号"""
     if not plugin_instance.username or not plugin_instance.password:
         yield event.plain_result("❌ 请先在插件配置中设置用户名和密码喵！")
         return
@@ -36,6 +37,7 @@ async def list_rooms_command(plugin_instance, event):
 
 # ---------- 绑定房间命令 ----------
 async def bind_room_command(plugin_instance, event):
+    """将当前群绑定到指定房间序号，如 /礼物房间 绑定 2"""
     parts = event.message_str.strip().split()
     if len(parts) < 2:
         yield event.plain_result("❌ 请指定序号，如 /礼物房间 绑定 2 喵！")
@@ -71,6 +73,7 @@ async def bind_room_command(plugin_instance, event):
 
 # ---------- 主统计命令 ----------
 async def gift_stats_command(plugin_instance, event):
+    """获取当天/最近N天/指定日期范围的礼物统计"""
     parts = event.message_str.strip().split()
     start_date = None
     end_date = None
@@ -123,6 +126,7 @@ async def gift_stats_command(plugin_instance, event):
 
 # ---------- 页码跳转命令 ----------
 async def page_command(plugin_instance, event):
+    """跳转到指定页码，如 /礼物统计页 2"""
     parts = event.message_str.strip().split()
     if len(parts) < 2:
         yield event.plain_result("❌ 请指定页码，如 /礼物统计页 2 喵！")
@@ -144,6 +148,7 @@ async def page_command(plugin_instance, event):
 
 # ---------- 帮助命令 ----------
 async def help_command(plugin_instance, event):
+    """显示插件帮助信息"""
     if plugin_instance.help_text:
         yield event.plain_result(plugin_instance.help_text)
     else:
@@ -151,6 +156,7 @@ async def help_command(plugin_instance, event):
 
 # ---------- 绑定UID命令 ----------
 async def bind_uid_command(plugin_instance, event):
+    """绑定您的 B 站 UID，如 /礼物统计 绑定 123456"""
     parts = event.message_str.strip().split()
     if len(parts) < 2:
         yield event.plain_result("❌ 请输入B站uid喵！")
@@ -170,6 +176,7 @@ async def bind_uid_command(plugin_instance, event):
 
 # ---------- 解绑UID命令 ----------
 async def unbind_uid_command(plugin_instance, event):
+    """解除已绑定的 UID"""
     sender_id = str(event.get_sender_id())
     if sender_id not in plugin_instance.bindings:
         yield event.plain_result("❌ 你还没有绑定任何 UID 呢喵！")
@@ -180,6 +187,7 @@ async def unbind_uid_command(plugin_instance, event):
 
 # ---------- 贡献命令 ----------
 async def contribution_command(plugin_instance, event):
+    """查询已绑定 UID 的礼物贡献，生成专属图片"""
     sender_id = str(event.get_sender_id())
     if sender_id not in plugin_instance.bindings:
         yield event.plain_result("❌ 你还没有绑定任何 UID 呢喵！请先使用 /礼物 绑定 [uid]")
