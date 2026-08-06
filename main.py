@@ -72,42 +72,42 @@ class GiftStatsPlugin(Star):
         logger.info(f"礼物统计插件已加载，用户名: {self.username or '(未配置)'}，合并转发: {self.merge_forward}，逐张发送: {self.send_separately}，单图输出: {self.single_image_output}，每页用户数: {self.max_users_per_page}，发送者名称: {self.sender_name}，自定义头像QQ: {self.forward_uin or '(未设置)'}")
 
     # ---------- 命令路由 ----------
-    @filter.command("礼物统计房间", alias={"礼物房间列表", "房间列表"})
+    @filter.command("礼物统计房间", alias={"礼物房间列表", "房间列表"}, desc="列出所有可用直播间及其序号")
     async def list_rooms(self, event: AstrMessageEvent):
         async for result in list_rooms_command(self, event):
             yield result
 
-    @filter.command("礼物房间绑定", alias={"礼物房间 绑定", "房间绑定"})
+    @filter.command("礼物房间绑定", alias={"礼物房间 绑定", "房间绑定"}, desc="将当前群绑定到指定房间")
     async def bind_room(self, event: AstrMessageEvent):
         async for result in bind_room_command(self, event):
             yield result
 
-    @filter.command("礼物统计")
+    @filter.command("礼物统计", desc="获取当天/最近N天/指定日期范围的礼物统计")
     async def gift_stats(self, event: AstrMessageEvent):
         async for result in gift_stats_command(self, event):
             yield result
 
-    @filter.command("礼物统计页", alias={"礼物统计 页", "礼物页"})
+    @filter.command("礼物统计页", alias={"礼物统计 页", "礼物页"}, desc="跳转到指定页码")
     async def gift_stats_page(self, event: AstrMessageEvent):
         async for result in page_command(self, event):
             yield result
 
-    @filter.command("礼物统计帮助", alias={"礼物 帮助", "礼物 help"})
+    @filter.command("礼物统计帮助", alias={"礼物 帮助", "礼物 help"}, desc="显示插件帮助信息")
     async def gift_stats_help(self, event: AstrMessageEvent):
         async for result in help_command(self, event):
             yield result
 
-    @filter.command("礼物统计绑定", alias={"礼物 绑定", "礼物 bind"})
+    @filter.command("礼物统计绑定", alias={"礼物 绑定", "礼物 bind"}, desc="绑定您的 B 站 UID")
     async def gift_stats_bind(self, event: AstrMessageEvent):
         async for result in bind_uid_command(self, event):
             yield result
 
-    @filter.command("礼物统计解绑", alias={"礼物 解绑", "礼物 unbind"})
+    @filter.command("礼物统计解绑", alias={"礼物 解绑", "礼物 unbind"}, desc="解除已绑定的 UID")
     async def gift_stats_unbind(self, event: AstrMessageEvent):
         async for result in unbind_uid_command(self, event):
             yield result
 
-    @filter.command("礼物统计贡献", alias={"礼物 贡献", "礼物 contribution"})
+    @filter.command("礼物统计贡献", alias={"礼物 贡献", "礼物 contribution"}, desc="查询已绑定 UID 的礼物贡献")
     async def gift_stats_contribution(self, event: AstrMessageEvent):
         async for result in contribution_command(self, event):
             yield result
