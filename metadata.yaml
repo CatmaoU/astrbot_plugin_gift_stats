@@ -1,15 +1,14 @@
-name: astrbot_plugin_gift_stats
-version: 1.0.2
-author: iMuli
-homepage: https://github.com/CatmaoU/astrbot_plugin_gift_stats
-description: B 站直播间礼物数据统计，支持多群直播间绑定、日期范围查询、个人礼物贡献查询
-category: 工具
-tags:
+name: astrbot_plugin_gift_stats        # 插件标识符（必须与文件夹名一致）
+display_name: 礼物统计                   # 插件在市场中显示的名称
+short_desc: 一句话介绍你的插件功能       # (可选) 简短的描述
+desc: |                                 # 详细描述，支持 Markdown 格式
+    B 站直播间礼物数据统计，支持多群直播间绑定、日期范围查询、个人礼物贡献查询
+version: 1.0.3                         # 插件版本号
+author: iMuli                          # 作者名称
+repo: https://github.com/CatmaoU/astrbot_plugin_gift_stats  # 仓库地址
+homepage: https://github.com/CatmaoU/astrbot_plugin_gift_stats # 项目主页
+tags:                                  # (可选) 标签，方便用户搜索
   - B站
   - 礼物统计
   - 数据可视化
   - 直播辅助
-dependencies: []
-astrbot_version: ">=4.26.0"  
-support_platforms: 
-  - aiocqhttp
